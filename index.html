@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>F4 SEJ Bab 4 Output Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f2f2f2;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .question {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .result {
+            background: #e6ffe6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .history {
+            background: #e6f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #ddd;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .save-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .save-btn {
+            background-color: #2196F3;
+            margin: 5px;
+        }
+        .save-btn:hover {
+            background-color: #0b7dda;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .option-label {
+            display: block;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .option-label:hover {
+            background-color: #f0f0f0;
+        }
+        .option-label input {
+            width: auto;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📚 F4 SEJ Bab 4 Output Test</h1>
+    <p>Era Peralihan Kuasa British di Negara Kita</p>
+</div>
+
+<div class="tabs">
+    <div class="tab active" onclick="showTab('quiz')">做测验</div>
+    <div class="tab" onclick="showTab('history')">查看记录</div>
+</div>
+
+<div id="quiz" class="tab-content active">
+    <div class="form-section">
+        <form id="quizForm">
+            <label>学生姓名 / Nama Pelajar:</label><br>
+            <input type="text" id="name" required placeholder="请输入您的姓名"><br>
+
+            <label>年级 / Tingkatan:</label><br>
+            <select id="form" required>
+                <option value="">选择年级</option>
+                <option value="F1">F1 (Form 1)</option>
+                <option value="F2">F2 (Form 2)</option>
+                <option value="F3">F3 (Form 3)</option>
+                <option value="F4">F4 (Form 4)</option>
+                <option value="F5">F5 (Form 5)</option>
+            </select><br>
+        </form>
+    </div>
+
+    <div id="questions"></div>
+
+    <div class="save-buttons">
+        <button type="button" onclick="submitQuiz()">提交测验 📝</button>
+        <button type="button" class="save-btn" onclick="saveProgress()">保存进度 💾</button>
+        <button type="button" class="save-btn" onclick="loadProgress()">加载进度 📂</button>
+    </div>
+
+    <div id="result" class="result hidden"></div>
+</div>
+
+<div id="history" class="tab-content">
+    <h3>📊 你的测验记录</h3>
+    <div id="historyList"></div>
+</div>
+
+<script>
+const questions = [
+    {
+        q: "British Military Administration (BMA) bermula di Tanah Melayu pada 12 September 1945. Apakah tugas BMA?<br><br>I. Memulihkan kepercayaan rakyat<br>II. Menjaga keharmonian penduduk<br>III. Memberikan kuasa kepada sultan<br>IV. Mengembalikan kestabilan dan keamanan",
+        options: ["A. I dan II", "B. I dan IV", "C. II dan III", "D. III dan IV"],
+        answer: "B. I dan IV",
+        explain: "Tugas utama BMA adalah memulihkan kepercayaan rakyat selepas pemerintahan Jepun yang keras, dan mengembalikan kestabilan serta keamanan di Tanah Melayu. BMA perlu memastikan keadaan aman sebelum pentadbiran sivil dapat dipulihkan.",
+        encourage: "🌟 很好！你理解了BMA的主要职责！记住BMA是战后恢复工作的重要阶段。"
+    },
+    {
+        q: "Apakah tujuan utama British menubuhkan BMA?",
+        options: ["A. Menjajah Tanah Melayu secara kekal", "B. Mengembalikan kestabilan dan keamanan", "C. Mengeksploitasi sumber ekonomi", "D. Menghapuskan kuasa Raja-raja Melayu"],
+        answer: "B. Mengembalikan kestabilan dan keamanan",
+        explain: "Tujuan utama BMA adalah untuk mengembalikan kestabilan dan keamanan serta memulihkan kepercayaan rakyat selepas kekalahan Jepun. BMA perlu menangani masalah keganasan dan kekacauan yang berlaku.",
+        encourage: "🎯 优秀！你理解了BMA的主要目标！这是理解英国战后政策的关键。"
+    },
+    {
+        q: "Gagasan Malayan Union diperkenalkan untuk menggantikan?",
+        options: ["A. British Military Administration (BMA)", "B. Persekutuan Tanah Melayu", "C. Negeri-negeri Selat", "D. Negeri-negeri Melayu Bersekutu"],
+        answer: "A. British Military Administration (BMA)",
+        explain: "Malayan Union diperkenalkan pada 1 April 1946 untuk menggantikan BMA. Ini adalah sistem pentadbiran baharu yang dirangka oleh Unit Perancang Tanah Melayu.",
+        encourage: "🌈 太棒了！你掌握了行政体系的变迁！这个时间顺序很重要。"
+    },
+    {
+        q: "Siapakah pegawai British yang dihantar untuk mendapatkan tandatangan Raja-raja Melayu bagi persetujuan Malayan Union?",
+        options: ["A. Sir Edward Gent", "B. Sir Harold MacMichael", "C. H.C. Willan", "D. Ralph Hone"],
+        answer: "B. Sir Harold MacMichael",
+        explain: "Sir Harold MacMichael tiba di Tanah Melayu pada 11 Oktober 1945 dengan misi untuk mendapatkan tandatangan Raja-raja Melayu. Beliau menggunakan pelbagai taktik termasuk desakan dan ugutan.",
+        encourage: "💪 出色！你记住了这个重要的历史人物！MacMichael的使命是争议性的历史事件。"
+    },
+    {
+        q: "Prinsip kewarganegaraan dalam Malayan Union berdasarkan?",
+        options: ["A. Jus soli (berdasarkan tempat lahir)", "B. Jus sanguinis (berdasarkan keturunan)", "C. Naturalisasi sahaja", "D. Kebenaran Raja-raja Melayu"],
+        answer: "A. Jus soli (berdasarkan tempat lahir)",
+        explain: "Malayan Union menggunakan prinsip jus soli iaitu semua yang dilahirkan di Tanah Melayu dan Singapura diiktiraf sebagai warganegara. Ini menyebabkan ketidakpuasan hati orang Melayu kerana kewarganegaraan dianggap terlalu liberal.",
+        encourage: "🔥 杰出！你理解了这个争议性的公民权制度！这正是引起马来人强烈反对的原因。"
+    },
+    {
+        q: "Mengapakah orang Melayu menentang Malayan Union?",
+        options: ["A. Sistem cukai yang tinggi", "B. Status quo orang Melayu diancam", "C. Bahasa Melayu tidak diiktiraf", "D. Sistem pendidikan diabaikan"],
+        answer: "B. Status quo orang Melayu diancam",
+        explain: "Orang Melayu menentang kerana Malayan Union mengancam kedudukan istimewa mereka, mengurangkan kuasa Raja-raja Melayu, dan memberikan kewarganegaraan yang terlalu liberal kepada kaum imigran.",
+        encourage: "🏆 精彩！你完全理解了马来人的担忧！这是理解种族政治的重要概念。"
+    },
+    {
+        q: "Satu persidangan Raja-raja Melayu diadakan di Kuala Kangsar, Perak bagi membincangkan isu berkaitan Malayan Union pada bulan April 1946. Apakah keputusan yang dicapai dalam persidangan tersebut?",
+        options: ["A. Menghantar surat bantahan ke London", "B. Menarik balik tandatangan persetujuan", "C. Memulau upacara pelantikan Gabenor Malayan Union", "D. Mengemukakan bantahan melalui Mahkamah Tinggi di England"],
+        answer: "C. Memulau upacara pelantikan Gabenor Malayan Union",
+        explain: "Dalam persidangan di Istana Iskandariah, Kuala Kangsar pada April 1946, Raja-raja Melayu memutuskan untuk memulau (tidak menghadiri) upacara pelantikan Gabenor Malayan Union sebagai tanda bantahan terhadap Malayan Union.",
+        encourage: "🎖️ 棒极了！你知道马来统治者的抵抗策略！这是一种巧妙的政治抗议方式。"
+    },
+    {
+        q: "Orang Melayu menentang Malayan Union dengan menganggap Malayan Union sebagai \"Hari Kematian\". Bagaimanakah mereka menunjukkan penentangan tersebut?",
+        options: ["A. Memakai songkok lilitan putih", "B. Meniupkan semangat jihad", "C. Memboikot kuasa Barat", "D. Mengangkat senjata"],
+        answer: "A. Memakai songkok lilitan putih",
+        explain: "Orang Melayu menunjukkan penentangan mereka terhadap Malayan Union dengan memakai songkok yang dililit dengan kain putih sebagai tanda berkabung. Mereka menganggap 1 April 1946 sebagai \"Hari Kematian\" bangsa Melayu.",
+        encourage: "⭐ 优秀！你了解马来人表达抗议的象征性方式！这种和平抗议很有象征意义。"
+    },
+    {
+        q: "Siapakah yang menyerahkan Sarawak kepada British pada 1946?",
+        options: ["A. James Brooke", "B. Charles Brooke", "C. Charles Vyner Brooke", "D. Anthony Brooke"],
+        answer: "C. Charles Vyner Brooke",
+        explain: "Charles Vyner Brooke menyerahkan Sarawak kepada British pada 1 Julai 1946. Penyerahan ini disebabkan masalah pewarisan takhta, masalah kewangan, dan desakan British.",
+        encourage: "🌟 很好！你知道最后一位统治砂拉越的白人拉惹！Brooke王朝的结束是重要历史转折点。"
+    },
+    {
+        q: "Mengapakah penduduk Sarawak menentang penyerahan kepada British?",
+        options: ["A. Bertentangan dengan Perlembagaan 1941", "B. Menolak sistem demokrasi", "C. Takut kehilangan tanah", "D. Tidak mahu berbahasa Inggeris"],
+        answer: "A. Bertentangan dengan Perlembagaan 1941",
+        explain: "Perlembagaan 1941 menjanjikan pemerintahan sendiri kepada rakyat Sarawak. Prinsip Kelapan menyatakan bahawa penduduk Sarawak akan dibimbing untuk mentadbir sendiri negeri mereka.",
+        encourage: "🎯 完美！你理解了重要的宪法问题！这体现了对自治承诺的重视。"
+    },
+    {
+        q: "Mengapakah Vyner Brooke menyerahkan Sarawak kepada British?<br><br>I. Masalah kewangan<br>II. Masalah pewarisan takhta<br>III. Mengabaikan surat wasiat<br>IV. Mematuhi Perlembagaan 1941",
+        options: ["A. I dan II", "B. I dan IV", "C. II dan III", "D. III dan IV"],
+        answer: "A. I dan II",
+        explain: "Vyner Brooke menyerahkan Sarawak kepada British kerana menghadapi masalah kewangan yang serius untuk membangunkan Sarawak selepas Perang Dunia Kedua, dan juga masalah pewarisan takhta kerana beliau tidak mempunyai anak lelaki untuk mewarisi takhta.",
+        encourage: "💪 太棒了！你理解了导致砂拉越移交的复杂因素！经济和政治因素都很重要。"
+    },
+    {
+        q: "Mengapakah Rukun 13 ditubuhkan?",
+        options: ["A. Menyokong penyerahan Sarawak", "B. Mempertahankan hak penduduk", "C. Memelihara kesucian agama Islam", "D. Menghapuskan pegawai tinggi British"],
+        answer: "D. Menghapuskan pegawai tinggi British",
+        explain: "Rukun 13 ditubuhkan secara rahsia di Sibu pada 20 Ogos 1948 dengan tujuan utama untuk menghapuskan pegawai tinggi British di Sarawak sebagai bentuk penentangan terhadap penyerahan Sarawak kepada British.",
+        encourage: "🏆 出色！你了解这个秘密组织的真正目的！这是激进抵抗运动的例子。"
+    },
+    {
+        q: "Mengapakah Young Malay Association (YMA) ditubuhkan di Sarawak?",
+        options: ["A. Memajukan penduduk tempatan", "B. Melaksanakan pemerintahan sendiri", "C. Menggalakkan ahli bertukar pendapat", "D. Membangkitkan kesedaran nasionalisme"],
+        answer: "B. Melaksanakan pemerintahan sendiri",
+        explain: "Young Malay Association (YMA) ditubuhkan di Sarawak dengan tujuan utama untuk melaksanakan pemerintahan sendiri bagi rakyat Sarawak, selaras dengan janji dalam Perlembagaan 1941 yang menjanjikan self-government kepada penduduk Sarawak.",
+        encourage: "🌈 杰出！你理解了YMA争取自治的目标！这体现了青年运动的政治觉醒。"
+    },
+    {
+        q: "Mengapakah penyerahan Sabah tidak mendapat bantahan hebat daripada penduduk tempatan?",
+        options: ["A. Gerakan nasionalisme ditindas", "B. Penduduk menyokong British", "C. Tidak ada masalah ekonomi", "D. Raja-raja menyokong penyerahan"],
+        answer: "A. Gerakan nasionalisme ditindas",
+        explain: "British menindas kegiatan berpersatuan di Sabah dengan menawarkan jawatan dan memindahkan pemimpin aktif. Penduduk Sabah juga terdiri daripada pelbagai etnik yang sukar dihimpunkan.",
+        encourage: "⭐ 很好！你理解了英国控制抵抗的策略！分化统治是殖民政策的常用手段。"
+    },
+    {
+        q: "Persatuan yang ditubuhkan untuk membangkitkan kesedaran politik di Sabah ialah?",
+        options: ["A. Persaudaraan Sahabat Pena Sabah (PASPAS)", "B. Persatuan Melayu Sabah", "C. Rukun Sabah", "D. Parti Sabah"],
+        answer: "A. Persaudaraan Sahabat Pena Sabah (PASPAS)",
+        explain: "PASPAS adalah antara persatuan yang bergerak aktif dalam membangkitkan kesedaran politik di Sabah. Terdapat juga Persatuan Kebangsaan Melayu dan Barisan Pemuda Sabah (BARIP).",
+        encourage: "🔥 优秀！你知道沙巴政治史上的重要组织！这些组织是政治觉醒的先驱。"
+    },
+    {
+        q: "Akhbar yang menyuarakan bantahan terhadap Malayan Union ialah?",
+        options: ["A. The Straits Times", "B. Utusan Melayu", "C. The Malay Mail", "D. Nanyang Siang Pau"],
+        answer: "B. Utusan Melayu",
+        explain: "Utusan Melayu, Majlis, dan Warta Negara adalah akhbar-akhbar Melayu yang giat menyuarakan bantahan terhadap Malayan Union. Akhbar ini memainkan peranan penting dalam menggerakkan orang Melayu.",
+        encourage: "📰 太棒了！你了解媒体在独立斗争中的作用！报纸是当时重要的宣传工具。"
+    },
+    {
+        q: "Tokoh wanita yang terlibat dalam menentang Malayan Union ialah?",
+        options: ["A. Tun Fatimah", "B. Cikgu Zaharah Abdullah", "C. Che Siti Wan Kembang", "D. Toh Puan Rahah"],
+        answer: "B. Cikgu Zaharah Abdullah",
+        explain: "Cikgu Zaharah Abdullah adalah antara tokoh wanita yang terlibat dalam menentang Malayan Union. Beliau bersama tokoh wanita lain seperti Halimahton Abd Majid dan Saleha Mohd Ali menggembleng tenaga untuk mendapat kembali hak-hak Melayu.",
+        encourage: "🌸 很好！你记住了女性在民族斗争中的贡献！女性也是抵抗运动的重要力量。"
+    },
+    {
+        q: "Apakah faktor penyerahan Sabah kepada British?",
+        options: ["A. Kelemahan pemerintah", "B. Permintaan penduduk", "C. Desakan pelabur", "D. Masalah kewangan"],
+        answer: "D. Masalah kewangan",
+        explain: "Faktor utama penyerahan Sabah kepada British adalah masalah kewangan yang dihadapi oleh Syarikat Borneo Utara British (SBUB). Selepas Perang Dunia Kedua, SBUB tidak mampu menanggung kos yang besar untuk membangunkan semula Sabah yang musnah akibat perang.",
+        encourage: "👑 杰出！你理解了经济因素在政治决策中的重要性！战后重建需要巨大资金。"
+    },
+    {
+        q: "Orang Melayu menganggap hari pelaksanaan Malayan Union sebagai?",
+        options: ["A. Hari Kegembiraan", "B. Hari Kematian", "C. Hari Kemerdekaan", "D. Hari Kebangsaan"],
+        answer: "B. Hari Kematian",
+        explain: "Orang Melayu menganggap 1 April 1946 (hari pelaksanaan Malayan Union) sebagai \"Hari Kematian\". Mereka memakai lilitan kain putih di songkok sebagai tanda berkabung dan penentangan.",
+        encourage: "💔 正确！你理解了马来人当时的悲愤心情！这体现了他们对民族尊严的珍视。"
+    },
+    {
+        q: "Apakah kesan utama penentangan terhadap Malayan Union?",
+        options: ["A. British meninggalkan Tanah Melayu", "B. Penubuhan Persekutuan Tanah Melayu 1948", "C. Kemerdekaan segera diberikan", "D. Raja-raja Melayu dihapuskan"],
+        answer: "B. Penubuhan Persekutuan Tanah Melayu 1948",
+        explain: "Penentangan yang gigih terhadap Malayan Union memaksa British memansuhkannya dan menggantikan dengan Persekutuan Tanah Melayu 1948 yang lebih diterima oleh orang Melayu kerana mengekalkan kedudukan Raja-raja Melayu dan hak istimewa Melayu.",
+        encourage: "🏆 完美！你理解了马来人斗争的伟大胜利！这证明了人民团结的力量！"
+    }
+];
+
+function showTab(tabId) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabId).classList.add('active');
+    
+    // Activate selected tab
+    event.currentTarget.classList.add('active');
+    
+    // If history tab is selected, load history
+    if (tabId === 'history') {
+        loadHistory();
+    }
+}
+
+function submitQuiz() {
+    const name = document.getElementById('name').value;
+    const form = document.getElementById('form').value;
+    
+    if (!name || !form) {
+        alert("请填写完整的个人信息！");
+        return;
+    }
+    
+    let score = 0;
+    let results = [];
+    let unanswered = 0;
+    
+    questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const isCorrect = selected && selected.value === q.answer;
+        
+        if (isCorrect) score++;
+        if (!selected) unanswered++;
+        
+        results.push({
+            question: q.q,
+            selected: selected ? selected.value : "未作答",
+            correct: q.answer,
+            isCorrect: isCorrect,
+            explain: q.explain,
+            encourage: q.encourage
+        });
+    });
+    
+    // Save the attempt to history
+    saveAttempt(name, form, score, results);
+    
+    // Display results
+    displayResults(name, form, score, results, unanswered);
+}
+
+function displayResults(name, form, score, results, unanswered) {
+    let output = `
+        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">📊 测验结果</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <p><strong>学生姓名:</strong> ${name}</p>
+                    <p><strong>年级:</strong> ${form}</p>
+                    <p><strong>测验:</strong> F4 SEJ Bab 4 Output Test</p>
+                </div>
+                <div>
+                    <p><strong>得分:</strong> <span class="${score >= 15 ? 'correct' : 'incorrect'}" style="font-size: 1.3rem; font-weight: bold;">${score} / 20 (${Math.round(score/20*100)}%)</span></p>
+                </div>
+            </div>
+            ${unanswered > 0 ? `<p style="color: orange; font-weight: bold;">⚠️ 注意：你有 ${unanswered} 题没有作答</p>` : ''}
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                <p style="font-size: 1.1rem; color: #2c3e50; margin: 0;">${getFeedback(score)}</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+        <h3 style="color: #2c3e50; margin-bottom: 20px;">📝 详细解答</h3>
+    `;
+    
+    results.forEach((r, index) => {
+        output += `
+            <div class="question" style="border-left: 5px solid ${r.isCorrect ? '#28a745' : '#dc3545'};">
+                <p><strong>第${index + 1}题：${r.isCorrect ? '✅ 正确' : '❌ 错误'}</strong></p>
+                <div class="question-text">${r.question}</div>
+                ${!r.isCorrect ? `<p><strong>你的答案:</strong> <span class="incorrect">${r.selected}</span></p>` : ''}
+                <p><strong>正确答案:</strong> <span class="correct">${r.correct}</span></p>
+                <p><strong>📖 解释:</strong> ${r.explain}</p>
+                <p><strong>💪 鼓励:</strong> ${r.encourage}</p>
+            </div>
+        `;
+    });
+    
+    document.getElementById('result').innerHTML = output;
+    document.getElementById('result').classList.remove('hidden');
+    
+    // Scroll to results
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+function saveAttempt(name, form, score, results) {
+    const attempts = JSON.parse(localStorage.getItem('f4sejbab4QuizAttempts') || '[]');
+    const attempt = {
+        date: new Date().toLocaleString(),
+        name,
+        form,
+        score,
+        results
+    };
+    
+    attempts.unshift(attempt); // Add new attempt at beginning
+    localStorage.setItem('f4sejbab4QuizAttempts', JSON.stringify(attempts));
+}
+
+function getFeedback(score) {
+    if (score === 20) {
+        return "🎉 太厉害啦！全对！你对F4 SEJ Bab 4的掌握堪称完美，历史学霸就是你！";
+    } else if (score >= 17) {
+        return "⭐ 成绩很不错！你对英国权力转移时期的理解很深刻，只有几个小细节需要注意！";
+    } else if (score >= 14) {
+        return "👍 挺好的！基本概念都掌握了，看看错题解释，巩固一下知识点！";
+    } else if (score >= 10) {
+        return "💪 有进步空间！建议多复习课本内容，特别关注重要事件和人物！";
+    } else {
+        return "📚 需要加油！建议重新阅读课本，理解基本概念，不要气馁，历史需要慢慢积累！";
+    }
+}
+
+function loadHistory() {
+    const attempts = JSON.parse(localStorage.getItem('f4sejbab4QuizAttempts') || '[]');
+    const historyList = document.getElementById('historyList');
+    
+    if (attempts.length === 0) {
+        historyList.innerHTML = "<p>你还没有任何测验记录，快去做测验吧！</p>";
+        return;
+    }
+    
+    let html = "";
+    attempts.forEach((attempt, index) => {
+        html += `
+            <div class="question" style="margin-bottom: 20px; padding: 20px; background: white; border-radius: 8px; border-left: 5px solid #4CAF50;">
+                <h3>📊 测验记录 #${index + 1} - ${attempt.date}</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                    <div>
+                        <p><strong>姓名:</strong> ${attempt.name}</p>
+                        <p><strong>年级:</strong> ${attempt.form}</p>
+                    </div>
+                    <div>
+                        <p><strong>得分:</strong> <span style="font-weight: bold; color: ${attempt.score >= 15 ? '#28a745' : '#dc3545'};">${attempt.score} / 20 (${Math.round(attempt.score/20*100)}%)</span></p>
+                        <p><strong>测验:</strong> F4 SEJ Bab 4 Output Test</p>
+                    </div>
+                </div>
+                <button onclick="viewAttemptDetails(${index})" style="background: #17a2b8;">查看详细答案 📖</button>
+                <div id="attemptDetails${index}" style="display: none; margin-top: 20px;">
+                    ${attempt.results.map((r, qIndex) => `
+                        <div style="margin-bottom: 15px; padding: 15px; background: ${r.isCorrect ? '#e6ffe6' : '#ffe6e6'}; border-radius: 8px; border-left: 4px solid ${r.isCorrect ? '#28a745' : '#dc3545'};">
+                            <p><strong>第${qIndex + 1}题：${r.isCorrect ? '✅ 正确' : '❌ 错误'}</strong></p>
+                            <div style="margin: 10px 0; font-size: 0.95rem;">${r.question}</div>
+                            ${!r.isCorrect ? `<p><strong>你的答案:</strong> <span style="color: #dc3545;">${r.selected}</span></p>` : ''}
+                            <p><strong>正确答案:</strong> <span style="color: #28a745; font-weight: bold;">${r.correct}</span></p>
+                            <p><strong>解释:</strong> ${r.explain}</p>
+                            <p><strong>鼓励:</strong> ${r.encourage}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    });
+    
+    historyList.innerHTML = html;
+}
+
+function viewAttemptDetails(index) {
+    const detailsDiv = document.getElementById(`attemptDetails${index}`);
+    if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+}
+
+function saveProgress() {
+    const name = document.getElementById('name').value;
+    const form = document.getElementById('form').value;
+    
+    if (!name || !form) {
+        alert("请先填写个人信息！");
+        return;
+    }
+    
+    const progress = {
+        name,
+        form,
+        answers: []
+    };
+    
+    questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        progress.answers.push(selected ? selected.value : null);
+    });
+    
+    localStorage.setItem('f4sejbab4QuizProgress', JSON.stringify(progress));
+    alert("✅ 进度已保存！你可以稍后回来继续完成测验。");
+}
+
+function loadProgress() {
+    const progress = JSON.parse(localStorage.getItem('f4sejbab4QuizProgress'));
+    
+    if (!progress) {
+        alert("❌ 没有找到保存的进度！");
+        return;
+    }
+    
+    document.getElementById('name').value = progress.name;
+    document.getElementById('form').value = progress.form;
+    
+    progress.answers.forEach((answer, index) => {
+        if (answer) {
+            const radio = document.querySelector(`input[name="q${index}"][value="${answer}"]`);
+            if (radio) radio.checked = true;
+        }
+    });
+    
+    alert("✅ 进度已加载！你可以继续完成测验。");
+}
+
+window.onload = function() {
+    const qDiv = document.getElementById('questions');
+    questions.forEach((q, index) => {
+        const div = document.createElement('div');
+        div.className = "question";
+        div.innerHTML = `
+            <div class="question-text"><strong>题目 ${index + 1}.</strong> ${q.q}</div>
+            <div style="margin-top: 10px;">
+                ${q.options.map(opt => `
+                    <label class="option-label">
+                        <input type="radio" name="q${index}" value="${opt}"> ${opt}
+                    </label>
+                `).join('')}
+            </div>
+        `;
+        qDiv.appendChild(div);
+    });
+    
+    // Check if there's saved progress
+    if (localStorage.getItem('f4sejbab4QuizProgress')) {
+        if (confirm("🔍 检测到有保存的进度，是否加载？")) {
+            loadProgress();
+        }
+    }
+}
+</script>
+
+</body>
+</html>
